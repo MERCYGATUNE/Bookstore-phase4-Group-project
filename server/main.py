@@ -9,12 +9,19 @@ def books():
     return jsonify (
         {
             "books":[
-                'red ridinghood',
-                'snow white',
-                'cinderella'
+                '40 Laws of Power',
+                'Snow white',
+                'Cinderella',
+                'Rapunzel',
+                'Think Big',
+                'Rich guy',
+                'Poor guy',
+                'The art of manipulation'
                 
             ]
         }
     )
+    
+
 if __name__ == "__main__":
     app.run(debug=True, port=8000)    

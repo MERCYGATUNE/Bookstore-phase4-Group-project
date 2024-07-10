@@ -1,0 +1,7 @@
+.booklist {
+    min-height:80vh;
+    width:100%;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    justify-items:center;
+}
