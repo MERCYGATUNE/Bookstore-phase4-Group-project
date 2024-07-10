@@ -1,0 +1,29 @@
+book-detail {
+    background-color: white;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* src/components/Cart.css */
+  .cart {
+    background-color: white;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  .cart ul {
+    list-style: none;
+    padding: 0;
+  }
+  
+  .cart li {
+    margin-bottom: 10px;
+  }
+  
+  .cart button {
+    margin-top: 20px;
+  }

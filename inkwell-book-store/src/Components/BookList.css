@@ -1,0 +1,18 @@
+.book-list {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .book-list li {
+    background-color: white;
+    margin: 10px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: calc(33.333% - 20px);
+    box-sizing: border-box;
+  }
+  
+  .book-list li:hover {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  }
