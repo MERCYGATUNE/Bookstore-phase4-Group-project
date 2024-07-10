@@ -1,23 +1,21 @@
-#!/usr/bin/env python3
+from flask import Flask
+from models import db, User, Book, Order
+from flask_migrate import Migrate
+import os
 
-# Standard library imports
+app = Flask(__name__)
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DB_URI", "sqlite:///app.db")
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.json.compact = False
 
-# Remote library imports
-from flask import request
-from flask_restful import Resource
+db.init_app(app)
+migrate = Migrate(app, db)
 
-# Local imports
-from config import app, db, api
-# Add your model imports
-
-
-# Views go here!
-
-@app.route('/')
+@app.route("/")
 def index():
-    return '<h1>Project Server</h1>'
+    return "<h1>Online Bookstore</h1>"
 
+# Add other routes here...
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     app.run(port=5555, debug=True)
-
