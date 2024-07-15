@@ -1,145 +1,98 @@
-from flask import Flask, request, jsonify, make_response
-from flask_migrate import Migrate
-from models import db, User, Book, Order, Borrowed, Favourite, Comment
-from config import Config
 import os
+from flask import Flask, make_response
+from flask_sqlalchemy import SQLAlchemy
+from flask_restful import Api
+from flask_jwt_extended import JWTManager
+from flask_migrate import Migrate
+from flask_cors import CORS
+from sqlalchemy import MetaData
 
-app = Flask(__name__)
-app.config.from_object(Config)
+# Import models using relative import
+from .models import db, Book, BorrowedBook, Comment, User, Favourite, Profile
 
-db.init_app(app)
-migrate = Migrate(app, db)
+# Initialize SQLAlchemy
+db = SQLAlchemy()
 
-@app.route("/")
-def index():
-    return "<h1>Online Bookstore</h1>"
+# Set the base directory
+basedir = os.path.abspath(os.path.dirname(__file__))
 
-# User routes
-@app.route("/users", methods=["GET"])
-def get_users():
-    users = User.query.all()
-    return jsonify([user.to_dict() for user in users]), 200
+def create_app():
+    app = Flask(__name__)
 
-@app.route("/users/<int:id>", methods=['GET', 'DELETE'])
-def get_user(id):
-    user_by_id = User.query.get(id)
-    if not user_by_id:
-        return {"error": "User not found"}, 404
-    
-    if request.method == 'GET':
-        return jsonify(user_by_id.to_dict()), 200
-    elif request.method == 'DELETE':
-        db.session.delete(user_by_id)
-        db.session.commit()
-        return {}, 204
+    # Configurations
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'instance', 'library.db')
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['JWT_SECRET_KEY'] = '12345678'
+    app.json.compact = False
 
-# Book routes
-@app.route("/books", methods=["GET"])
-def get_books():
-    books = Book.query.all()
-    return jsonify([book.to_dict() for book in books]), 200
+    # Enable CORS
+    CORS(app)
 
-@app.route("/books/<int:id>", methods=['GET'])
-def get_book(id):
-    book_by_id = Book.query.get(id)
-    if not book_by_id:
-        return {"error": "Book not found"}, 404
-    
-    return jsonify(book_by_id.to_dict()), 200
+    # Define metadata with naming convention for foreign keys
+    metadata = MetaData(naming_convention={
+        "fk": "fk_%(table_name)s_%(column_0_name)s_%(referred_table_name)s",
+    })
 
-# Order routes
-@app.route("/orders", methods=["POST"])
-def create_order():
-    data = request.get_json()
+    db.init_app(app)
 
-    try:
-        new_order = Order(
-            user_id=data.get("user_id"),
-            book_id=data.get("book_id"),
-            quantity=data.get("quantity"),
-        )
-    except ValueError as e:
-        return {"errors": ["validation errors"]}, 400 
-    
-    db.session.add(new_order)
-    db.session.commit()
+    # Initialize JWT
+    jwt = JWTManager(app)
 
-    return jsonify(new_order.to_dict()), 201
+    # Initialize and configure Flask-Migrate
+    migrate = Migrate(app, db)
 
-# Borrowed routes
-@app.route("/borrowed", methods=["POST"])
-def create_borrowed():
-    data = request.get_json()
+    # Initialize Flask-Restful
+    api = Api(app)
 
-    new_borrowed = Borrowed(
-        user_id=data.get("user_id"),
-        book_id=data.get("book_id"),
-        borrowed_date=data.get("borrowed_date"),
-        return_date=data.get("return_date")
-    )
-    
-    db.session.add(new_borrowed)
-    db.session.commit()
+    # Import and register blueprints using relative imports
+    from .resources.auth import auth_bp
+    from .resources.book import book_bp
+    from .resources.borrowed_book import borrowed_bp
+    from .resources.comment import comment_bp
+    from .resources.favourite import favourite_bp
+    from .resources.profile import profile_bp
+    from .resources.user import user_bp
 
-    return jsonify(new_borrowed.to_dict()), 201
+    app.register_blueprint(auth_bp)
+    app.register_blueprint(book_bp)
+    app.register_blueprint(borrowed_bp)
+    app.register_blueprint(comment_bp)
+    app.register_blueprint(favourite_bp)
+    app.register_blueprint(profile_bp)
+    app.register_blueprint(user_bp)
 
-@app.route("/borrowed/<int:id>", methods=['GET', 'DELETE'])
-def get_borrowed(id):
-    borrowed_by_id = Borrowed.query.get(id)
-    if not borrowed_by_id:
-        return {"error": "Borrowed record not found"}, 404
-    
-    if request.method == 'GET':
-        return jsonify(borrowed_by_id.to_dict()), 200
-    elif request.method == 'DELETE':
-        db.session.delete(borrowed_by_id)
-        db.session.commit()
-        return {}, 204
+    # Add resources to the API
+    from .resources.user import UserResource
+    from .resources.book import BookResource
+    from .resources.profile import ProfileResource
+    from .resources.borrowed_book import BorrowedBookResource
+    from .resources.comment import CommentResource
+    from .resources.favourite import FavouriteResource
+    from .resources.auth import RegisterResource, LoginResource
 
-# Favourite routes
-@app.route("/favourites", methods=["POST"])
-def create_favourite():
-    data = request.get_json()
+    api.add_resource(UserResource, '/users', '/users/<int:id>')
+    api.add_resource(BookResource, '/books', '/books/<int:id>')
+    api.add_resource(ProfileResource, '/profiles', '/profiles/<int:id>')
+    api.add_resource(BorrowedBookResource, '/borrowed_books', '/borrowed_books/<int:id>')
+    api.add_resource(CommentResource, '/comments', '/comments/<int:id>')
+    api.add_resource(FavouriteResource, '/favourites', '/favourites/<int:id>')
+    api.add_resource(RegisterResource, '/auth/register')
+    api.add_resource(LoginResource, '/auth/login')
 
-    new_favourite = Favourite(
-        user_id=data.get("user_id"),
-        book_id=data.get("book_id")
-    )
-    
-    db.session.add(new_favourite)
-    db.session.commit()
+    @app.route('/')
+    def index():
+        response = make_response('<h1>Welcome to Inkwell Bookstore</h1>', 200)
+        return response
 
-    return jsonify(new_favourite.to_dict()), 201
+    @app.route('/books/<int:id>')
+    def book_by_id(id):
+        book = Book.query.filter_by(id=id).first()
+        if book:
+            return make_response({'title': book.title, 'author': book.author}, 200)
+        else:
+            return make_response({'message': 'Book not found'}, 404)
 
-@app.route("/favourites/<int:id>", methods=['GET', 'DELETE'])
-def get_favourite(id):
-    favourite_by_id = Favourite.query.get(id)
-    if not favourite_by_id:
-        return {"error": "Favourite not found"}, 404
-    
-    if request.method == 'GET':
-        return jsonify(favourite_by_id.to_dict()), 200
-    elif request.method == 'DELETE']:
-        db.session.delete(favourite_by_id)
-        db.session.commit()
-        return {}, 204
+    return app
 
-# Comment routes
-@app.route("/comments", methods=["POST"])
-def create_comment():
-    data = request.get_json()
-
-    new_comment = Comment(
-        user_id=data.get("user_id"),
-        book_id=data.get("book_id"),
-        content=data.get("content")
-    )
-    
-    db.session.add(new_comment)
-    db.session.commit()
-
-    return jsonify(new_comment.to_dict()), 201
-
-@app.route("/comments/<int:id>", methods=['GET', 'DELETE'])
-def get_comment(id):
-    comment_by_id =
+if __name__ == '__main__':
+    app.run(debug=True, port=5555)

@@ -1,117 +1,116 @@
-from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()
 
 class User(db.Model):
     __tablename__ = 'users'
-
+    
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(120), nullable=False)
-    orders = db.relationship('Order', backref='user', lazy=True)
-    borrowed_books = db.relationship('Borrowed', backref='user', lazy=True)
+    password = db.Column(db.String(128), nullable=False)
+    profiles = db.relationship('Profile', backref='user', lazy=True)
     favourites = db.relationship('Favourite', backref='user', lazy=True)
     comments = db.relationship('Comment', backref='user', lazy=True)
+    borrowed_books = db.relationship('BorrowedBook', backref='user', lazy=True)
 
-    def to_dict(self):
+    def set_password(self, password):
+        self.password = generate_password_hash(password)
+
+    def check_password(self, password):
+        return check_password_hash(self.password, password)
+
+    def serialize(self):
         return {
             'id': self.id,
             'username': self.username,
             'email': self.email,
-            'orders': [order.to_dict() for order in self.orders],
-            'borrowed_books': [borrowed.to_dict() for borrowed in self.borrowed_books],
-            'favourites': [favourite.to_dict() for favourite in self.favourites],
-            'comments': [comment.to_dict() for comment in self.comments]
         }
+
+
+class Profile(db.Model):
+    __tablename__ = 'profiles'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    bio = db.Column(db.String(255))
+    avatar = db.Column(db.String(255))
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'bio': self.bio,
+            'avatar': self.avatar,
+        }
+
 
 class Book(db.Model):
     __tablename__ = 'books'
-
+    
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), nullable=False)
-    author = db.Column(db.String(200), nullable=False)
-    price = db.Column(db.Float, nullable=False)
-    orders = db.relationship('Order', backref='book', lazy=True)
-    borrowed_books = db.relationship('Borrowed', backref='book', lazy=True)
-    favourites = db.relationship('Favourite', backref='book', lazy=True)
+    title = db.Column(db.String(255), nullable=False)
+    author = db.Column(db.String(255), nullable=False)
     comments = db.relationship('Comment', backref='book', lazy=True)
+    favourites = db.relationship('Favourite', backref='book', lazy=True)
+    borrowed_books = db.relationship('BorrowedBook', backref='book', lazy=True)
 
-    def to_dict(self):
+    def serialize(self):
         return {
             'id': self.id,
             'title': self.title,
             'author': self.author,
-            'price': self.price,
-            'orders': [order.to_dict() for order in self.orders],
-            'borrowed_books': [borrowed.to_dict() for borrowed in self.borrowed_books],
-            'favourites': [favourite.to_dict() for favourite in self.favourites],
-            'comments': [comment.to_dict() for comment in self.comments]
         }
 
-class Order(db.Model):
-    __tablename__ = 'orders'
 
+class BorrowedBook(db.Model):
+    __tablename__ = 'borrowed_books'
+    
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     book_id = db.Column(db.Integer, db.ForeignKey('books.id'), nullable=False)
-    quantity = db.Column(db.Integer, nullable=False)
+    borrowed_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    return_date = db.Column(db.DateTime)
 
-    def to_dict(self):
+    def serialize(self):
         return {
             'id': self.id,
             'user_id': self.user_id,
             'book_id': self.book_id,
-            'quantity': self.quantity,
+            'borrowed_date': self.borrowed_date.isoformat(),
+            'return_date': self.return_date.isoformat() if self.return_date else None,
         }
 
-class Borrowed(db.Model):
-    __tablename__ = 'borrowed'
-
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    book_id = db.Column(db.Integer, db.ForeignKey('books.id'), nullable=False)
-    borrowed_date = db.Column(db.DateTime, default=datetime.utcnow)
-    return_date = db.Column(db.DateTime, nullable=True)
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'user_id': self.user_id,
-            'book_id': self.book_id,
-            'borrowed_date': self.borrowed_date,
-            'return_date': self.return_date
-        }
-
-class Favourite(db.Model):
-    __tablename__ = 'favourites'
-
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    book_id = db.Column(db.Integer, db.ForeignKey('books.id'), nullable=False)
-
-    def to_dict(self):
-        return {
-            'id': self.id,
-            'user_id': self.user_id,
-            'book_id': self.book_id,
-        }
 
 class Comment(db.Model):
     __tablename__ = 'comments'
-
+    
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     book_id = db.Column(db.Integer, db.ForeignKey('books.id'), nullable=False)
-    content = db.Column(db.Text, nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    text = db.Column(db.String(255), nullable=False)
 
-    def to_dict(self):
+    def serialize(self):
         return {
             'id': self.id,
             'user_id': self.user_id,
             'book_id': self.book_id,
-            'content': self.content,
-            'timestamp': self.timestamp
+            'text': self.text,
+        }
+
+
+class Favourite(db.Model):
+    __tablename__ = 'favourites'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    book_id = db.Column(db.Integer, db.ForeignKey('books.id'), nullable=False)
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'book_id': self.book_id,
         }
