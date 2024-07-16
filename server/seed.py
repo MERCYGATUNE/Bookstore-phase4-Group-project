@@ -2,10 +2,12 @@
 
 from random import randint, choice as rc
 from faker import Faker
-from .import app, db
-from .models import Book, BorrowedBook, Comment, User, Favourite
+from server.app import create_app
+from server.models import db, Book, BorrowedBook, Comment, User, Favourite
 
 fake = Faker()
+
+app = create_app()
 
 def seed_data():
     with app.app_context():

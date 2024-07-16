@@ -2,10 +2,7 @@ from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from .import db
-
-
-
+db = SQLAlchemy()  # Initialize db here
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -14,7 +11,7 @@ class User(db.Model):
     username = db.Column(db.String(100), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
-    profiles = db.relationship('Profile', back_populates='user', lazy=True)
+    profile = db.relationship('Profile', uselist=False, back_populates='user', lazy=True)  # Single profile
     favourites = db.relationship('Favourite', back_populates='user', lazy=True)
     comments = db.relationship('Comment', back_populates='user', lazy=True)
     borrowed_books = db.relationship('BorrowedBook', back_populates='user', lazy=True)
@@ -40,6 +37,8 @@ class Profile(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     bio = db.Column(db.String(255))
     avatar = db.Column(db.String(255))
+
+    user = db.relationship('User', back_populates='profile')  # Back-reference
 
     def serialize(self):
         return {
@@ -77,6 +76,9 @@ class BorrowedBook(db.Model):
     borrowed_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     return_date = db.Column(db.DateTime)
 
+    user = db.relationship('User', back_populates='borrowed_books')  # Relationship
+    book = db.relationship('Book', back_populates='borrowed_books')  # Relationship
+
     def serialize(self):
         return {
             'id': self.id,
@@ -95,6 +97,9 @@ class Comment(db.Model):
     book_id = db.Column(db.Integer, db.ForeignKey('books.id'), nullable=False)
     text = db.Column(db.String(255), nullable=False)
 
+    user = db.relationship('User', back_populates='comments')  # Relationship
+    book = db.relationship('Book', back_populates='comments')  # Relationship
+
     def serialize(self):
         return {
             'id': self.id,
@@ -110,6 +115,9 @@ class Favourite(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     book_id = db.Column(db.Integer, db.ForeignKey('books.id'), nullable=False)
+
+    user = db.relationship('User', back_populates='favourites')  # Relationship
+    book = db.relationship('Book', back_populates='favourites')  # Relationship
 
     def serialize(self):
         return {
