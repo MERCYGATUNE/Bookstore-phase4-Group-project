@@ -41,7 +41,7 @@ class Profile(db.Model):
     user = db.relationship('User', back_populates='profile')  # Back-reference
 
     def serialize(self):
-        return {
+        return {   
             'id': self.id,
             'user_id': self.user_id,
             'bio': self.bio,

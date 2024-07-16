@@ -5,9 +5,26 @@ from flask_cors import CORS
 from models import db, User
 import bcrypt
 
-user_bp = Blueprint('User', __name__, url_prefix='/user')
+user_bp = Blueprint('Users', __name__, url_prefix='/users')
 CORS(user_bp)
 user_api = Api(user_bp)
+
+
+# Define the parsers
+user_post_parser = reqparse.RequestParser()
+user_post_parser.add_argument('username', required=True, help='Username is required')
+user_post_parser.add_argument('email', required=True, help='Email is required')
+user_post_parser.add_argument('password', required=True, help='Password is required')
+
+user_put_parser = reqparse.RequestParser()
+user_put_parser.add_argument('username', required=False)
+user_put_parser.add_argument('email', required=False)
+user_put_parser.add_argument('password', required=False)
+
+
+
+
+
 
 class UserResource(Resource):
     @jwt_required()

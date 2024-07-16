@@ -2,7 +2,7 @@ from flask_restful import Resource,Api,reqparse
 from models import db, Profile
 from flask import Blueprint
 
-profile_bp = Blueprint('Profile',__name__,url_prefix='/Profile')
+profile_bp = Blueprint('Profile',__name__,url_prefix='/profile')
 profile_api = Api(profile_bp)
 
 profile_parser = reqparse.RequestParser()
@@ -41,5 +41,5 @@ class ProfileListResource(Resource):
         return new_profile.serialize(), 201
 
 profile_api.add_resource(ProfileResource, '/<int:id>')
-profile_api.add_resource(ProfileListResource, 'profilelist')
+profile_api.add_resource(ProfileListResource, '/profilelist')
 #localosht:5555/Profile/profilelist

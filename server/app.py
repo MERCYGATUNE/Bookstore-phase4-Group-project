@@ -46,7 +46,7 @@ app.register_blueprint(user_bp)
 
 @app.route('/')
 def index():
-    text='hello people'
+    text='Inkwell bookstore'
     return text
 
 
