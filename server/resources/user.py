@@ -70,4 +70,4 @@ class UserResource(Resource):
         return '', 204
 
 # Register the resource with the blueprint's API
-user_bp.add_resource(UserResource, '/', '/<int:id>')
+user_api.add_resource(UserResource, '/', '/<int:id>')
