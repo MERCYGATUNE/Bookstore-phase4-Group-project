@@ -1,73 +1,44 @@
-from flask import jsonify, request, Blueprint
-from flask_restful import Resource, Api, reqparse
-from flask_cors import CORS
-from flask_jwt_extended import jwt_required, get_jwt_identity
-from server.models import db, Profile
+from flask_restful import Resource,Api,reqparse
+from models import db, Profile
+from flask import Blueprint
 
-profile_bp = Blueprint('profile_bp', __name__, url_prefix='/profiles')
-CORS(profile_bp)
-api_bp = Api(profile_bp)
+profile_bp = Blueprint('Profile',__name__,url_prefix='/Profile')
+profile_api = Api(profile_bp)
 
+profile_parser = reqparse.RequestParser()
+profile_parser.add_argument('user_id', type=int, required=True, help='User ID is required')
+profile_parser.add_argument('bio', type=str, required=False)
+profile_parser.add_argument('avatar', type=str, required=False)
 class ProfileResource(Resource):
-    @jwt_required()
-    def get(self, id=None):
-        if id:
-            profile = Profile.query.get_or_404(id)
-            return jsonify(profile.serialize())
-        else:
-            profiles = Profile.query.all()
-            return jsonify([profile.serialize() for profile in profiles])
-
-    @jwt_required()
-    def post(self):
-        user_id = get_jwt_identity()
-        profile_parser = reqparse.RequestParser()
-        profile_parser.add_argument('bio', type=str, required=False)
-        profile_parser.add_argument('avatar', type=str, required=False)
-        args = profile_parser.parse_args()
-
-        profile = Profile(
-            user_id=user_id,
-            bio=args.get('bio'),
-            avatar=args.get('avatar')
-        )
-
-        db.session.add(profile)
-        db.session.commit()
-
-        return jsonify(profile.serialize()), 201
-
-    @jwt_required()
-    def put(self, id):
+    def get(self, id):
         profile = Profile.query.get_or_404(id)
-        user_id = get_jwt_identity()
-        if profile.user_id != user_id:
-            return jsonify({'message': 'Unauthorized access'}), 403
+        return profile.serialize()
 
-        profile_parser = reqparse.RequestParser()
-        profile_parser.add_argument('bio', type=str)
-        profile_parser.add_argument('avatar', type=str)
-        args = profile_parser.parse_args()
-
-        if args['bio'] is not None:
-            profile.bio = args['bio']
-        if args['avatar'] is not None:
-            profile.avatar = args['avatar']
-
+    def put(self, id):
+        data = profile_parser.parse_args()
+        profile = Profile.query.get_or_404(id)
+        profile.bio = data['bio']
+        profile.avatar = data['avatar']
         db.session.commit()
+        return profile.serialize()
 
-        return jsonify(profile.serialize())
-
-    @jwt_required()
     def delete(self, id):
         profile = Profile.query.get_or_404(id)
-        user_id = get_jwt_identity()
-        if profile.user_id != user_id:
-            return jsonify({'message': 'Unauthorized access'}), 403
-
         db.session.delete(profile)
         db.session.commit()
-        return '', 204
+        return {'message': 'Profile deleted successfully'}
 
-# Register the resource with the blueprint's API
-api_bp.add_resource(ProfileResource, '/', '/<int:id>')
+class ProfileListResource(Resource):
+    def get(self):
+        profiles = Profile.query.all()
+        return [profile.serialize() for profile in profiles]
+
+    def post(self):
+        data = profile_parser.parse_args()
+        new_profile = Profile(user_id=data['user_id'], bio=data['bio'], avatar=data['avatar'])
+        db.session.add(new_profile)
+        db.session.commit()
+        return new_profile.serialize(), 201
+
+profile_api.add_resource(ProfileResource, '/<int:id>')
+profile_api.add_resource(ProfileListResource, '')

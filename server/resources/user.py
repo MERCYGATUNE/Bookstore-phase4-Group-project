@@ -2,7 +2,7 @@ from flask import jsonify, request, Blueprint
 from flask_restful import Resource, Api, reqparse
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_cors import CORS
-from server.models import db, User
+from models import db, User
 import bcrypt
 
 user_bp = Blueprint('user_bp', __name__, url_prefix='/users')

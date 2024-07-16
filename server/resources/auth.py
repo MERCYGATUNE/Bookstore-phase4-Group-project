@@ -3,7 +3,7 @@ from flask_restful import Resource, Api, reqparse
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity, JWTManager
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
-from server.models import db, User
+from models import db, User
 
 auth_bp = Blueprint('auth_bp', __name__, url_prefix='/auth')
 CORS(auth_bp)
