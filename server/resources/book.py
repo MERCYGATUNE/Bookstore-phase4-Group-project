@@ -1,53 +1,47 @@
-from flask import Blueprint, jsonify, request
-from flask_restful import Resource, Api, reqparse
-from flask_cors import CORS
-from server.models import db, Book
 
-book_bp = Blueprint('book_bp', __name__, url_prefix='/books')
-CORS(book_bp)
-api_bp = Api(book_bp)
+from flask_restful import Resource,Api,reqparse
+from models import db, Book
+from flask import Blueprint
+
+profile_bp = Blueprint('Book',__name__,url_prefix='/Book')
+profile_api = Api({Book_bp})
+
+
+
+book_parser = reqparse.RequestParser()
+book_parser.add_argument('title', type=str, required=True, help='Title is required')
+book_parser.add_argument('author', type=str, required=True, help='Author is required')
 
 class BookResource(Resource):
-    def get(self, id=None):
-        if id:
-            book = Book.query.get_or_404(id)
-            return jsonify(book.serialize())
-        else:
-            books = Book.query.all()
-            return jsonify([book.serialize() for book in books])
-
-    def post(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('title', type=str, required=True, help='Title is required')
-        parser.add_argument('author', type=str, required=True, help='Author is required')
-        args = parser.parse_args()
-
-        book = Book(title=args['title'], author=args['author'])
-        db.session.add(book)
-        db.session.commit()
-
-        return jsonify(book.serialize()), 201
+    def get(self, id):
+        book = Book.query.get_or_404(id)
+        return book.serialize()
 
     def put(self, id):
+        data = book_parser.parse_args()
         book = Book.query.get_or_404(id)
-        parser = reqparse.RequestParser()
-        parser.add_argument('title', type=str)
-        parser.add_argument('author', type=str)
-        args = parser.parse_args()
-
-        if args['title']:
-            book.title = args['title']
-        if args['author']:
-            book.author = args['author']
-
+        book.title = data['title']
+        book.author = data['author']
         db.session.commit()
-
-        return jsonify(book.serialize())
+        return book.serialize()
 
     def delete(self, id):
         book = Book.query.get_or_404(id)
         db.session.delete(book)
         db.session.commit()
-        return '', 204
+        return {'message': 'Book deleted successfully'}
 
-api_bp.add_resource(BookResource, '/', '/<int:id>')
+class BookListResource(Resource):
+    def get(self):
+        books = Book.query.all()
+        return [book.serialize() for book in books]
+
+    def post(self):
+        data = book_parser.parse_args()
+        new_book = Book(title=data['title'], author=data['author'])
+        db.session.add(new_book)
+        db.session.commit()
+        return new_book.serialize(), 201
+    
+books_api.add_resource(BookResource, '/<int:id>')
+books_api.add_resource(BookListResource, '')

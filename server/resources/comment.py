@@ -1,62 +1,51 @@
-from flask import Blueprint, jsonify, request
-from flask_restful import Resource, Api, reqparse
-from flask_cors import CORS
-from server.models import db, Comment
 
-comment_bp = Blueprint('comment_bp', __name__, url_prefix='/comments')
-CORS(comment_bp)
-api_bp = Api(comment_bp)
+
+from flask_restful import Resource,Api,reqparse
+from models import db, Comment
+from flask import Blueprint
+
+profile_bp = Blueprint('Comment',__name__,url_prefix='/Comment')
+profile_api = Api({Comment_bp})
+
+
+comment_parser = reqparse.RequestParser()
+comment_parser.add_argument('user_id', type=int, required=True, help='User ID is required')
+comment_parser.add_argument('book_id', type=int, required=True, help='Book ID is required')
+comment_parser.add_argument('text', type=str, required=True, help='Text is required')
+
+
 
 class CommentResource(Resource):
-    def get(self, id=None):
-        if id:
-            comment = Comment.query.get_or_404(id)
-            return jsonify(comment.serialize())
-        else:
-            comments = Comment.query.all()
-            return jsonify([comment.serialize() for comment in comments])
-
-    def post(self):
-        parser = reqparse.RequestParser()
-        parser.add_argument('user_id', type=int, required=True, help='User ID is required')
-        parser.add_argument('book_id', type=int, required=True, help='Book ID is required')
-        parser.add_argument('text', type=str, required=True, help='Text is required')
-        args = parser.parse_args()
-
-        comment = Comment(
-            user_id=args['user_id'],
-            book_id=args['book_id'],
-            text=args['text']
-        )
-
-        db.session.add(comment)
-        db.session.commit()
-
-        return jsonify(comment.serialize()), 201
+    def get(self, id):
+        comment = Comment.query.get_or_404(id)
+        return comment.serialize()
 
     def put(self, id):
+        data = comment_parser.parse_args()
         comment = Comment.query.get_or_404(id)
-        parser = reqparse.RequestParser()
-        parser.add_argument('user_id', type=int)
-        parser.add_argument('book_id', type=int)
-        parser.add_argument('text', type=str)
-        args = parser.parse_args()
-
-        if args['user_id']:
-            comment.user_id = args['user_id']
-        if args['book_id']:
-            comment.book_id = args['book_id']
-        if args['text']:
-            comment.text = args['text']
-
+        comment.user_id = data['user_id']
+        comment.book_id = data['book_id']
+        comment.text = data['text']
         db.session.commit()
-
-        return jsonify(comment.serialize())
+        return comment.serialize()
 
     def delete(self, id):
         comment = Comment.query.get_or_404(id)
         db.session.delete(comment)
         db.session.commit()
-        return '', 204
+        return {'message': 'Comment deleted successfully'}
 
-api_bp.add_resource(CommentResource, '/', '/<int:id>')
+class CommentListResource(Resource):
+    def get(self):
+        comments = Comment.query.all()
+        return [comment.serialize() for comment in comments]
+
+    def post(self):
+        data = comment_parser.parse_args()
+        new_comment = Comment(user_id=data['user_id'], book_id=data['book_id'], text=data['text'])
+        db.session.add(new_comment)
+        db.session.commit()
+        return new_comment.serialize(), 201
+
+comments_api.add_resource(CommentResource, '/<int:id>')
+comments_api.add_resource(CommentListResource, '')
