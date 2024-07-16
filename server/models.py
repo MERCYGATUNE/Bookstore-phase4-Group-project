@@ -2,19 +2,22 @@ from datetime import datetime
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 
-db = SQLAlchemy()
+from .import db
+
+
+
 
 class User(db.Model):
     __tablename__ = 'users'
     
     id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
+    username = db.Column(db.String(100), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(128), nullable=False)
-    profiles = db.relationship('Profile', backref='user', lazy=True)
-    favourites = db.relationship('Favourite', backref='user', lazy=True)
-    comments = db.relationship('Comment', backref='user', lazy=True)
-    borrowed_books = db.relationship('BorrowedBook', backref='user', lazy=True)
+    profiles = db.relationship('Profile', back_populates='user', lazy=True)
+    favourites = db.relationship('Favourite', back_populates='user', lazy=True)
+    comments = db.relationship('Comment', back_populates='user', lazy=True)
+    borrowed_books = db.relationship('BorrowedBook', back_populates='user', lazy=True)
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
@@ -53,9 +56,9 @@ class Book(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(255), nullable=False)
     author = db.Column(db.String(255), nullable=False)
-    comments = db.relationship('Comment', backref='book', lazy=True)
-    favourites = db.relationship('Favourite', backref='book', lazy=True)
-    borrowed_books = db.relationship('BorrowedBook', backref='book', lazy=True)
+    comments = db.relationship('Comment', back_populates='book', lazy=True)
+    favourites = db.relationship('Favourite', back_populates='book', lazy=True)
+    borrowed_books = db.relationship('BorrowedBook', back_populates='book', lazy=True)
 
     def serialize(self):
         return {

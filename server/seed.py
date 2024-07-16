@@ -2,8 +2,8 @@
 
 from random import randint, choice as rc
 from faker import Faker
-from server.app import app, db
-from server.models import Book, BorrowedBook, Comment, User, Favourite
+from .import app, db
+from .models import Book, BorrowedBook, Comment, User, Favourite
 
 fake = Faker()
 
