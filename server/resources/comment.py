@@ -48,3 +48,4 @@ class CommentListResource(Resource):
 
 comment_api.add_resource(CommentResource, '/<int:id>')
 comment_api.add_resource(CommentListResource, 'commentlist')
+#localhost:5555/Comment/commentlist

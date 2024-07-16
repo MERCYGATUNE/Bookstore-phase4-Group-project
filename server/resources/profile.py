@@ -42,3 +42,4 @@ class ProfileListResource(Resource):
 
 profile_api.add_resource(ProfileResource, '/<int:id>')
 profile_api.add_resource(ProfileListResource, 'profilelist')
+#localosht:5555/Profile/profilelist

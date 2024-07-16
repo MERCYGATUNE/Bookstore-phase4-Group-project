@@ -46,3 +46,4 @@ class FavouriteListResource(Resource):
 
 favourite_api.add_resource(FavouriteResource, '/<int:id>')
 favourite_api.add_resource(FavouriteListResource, 'favlist')
+#localhost:5555/Favourite/favlist

@@ -5,7 +5,7 @@ from flask_cors import CORS
 from models import db, User
 import bcrypt
 
-user_bp = Blueprint('user_bp', __name__, url_prefix='/users')
+user_bp = Blueprint('User', __name__, url_prefix='/user')
 CORS(user_bp)
 user_api = Api(user_bp)
 
@@ -71,3 +71,4 @@ class UserResource(Resource):
 
 # Register the resource with the blueprint's API
 user_api.add_resource(UserResource, '/', '/<int:id>')
+#localhost:5555/User/id like 1

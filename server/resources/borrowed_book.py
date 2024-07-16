@@ -49,3 +49,4 @@ class BorrowedBookListResource(Resource):
 
 borrowed_api.add_resource(BorrowedBookResource, '/<int:id>')
 borrowed_api.add_resource(BorrowedBookListResource, 'borrowedlist')
+#localhost:5555/Borrowed_book/borrowedlist
