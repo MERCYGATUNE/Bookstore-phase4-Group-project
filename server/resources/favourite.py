@@ -45,4 +45,4 @@ class FavouriteListResource(Resource):
         return new_favourite.serialize(), 201
 
 favourite_api.add_resource(FavouriteResource, '/<int:id>')
-favourite_api.add_resource(FavouriteListResource, '')
+favourite_api.add_resource(FavouriteListResource, 'favlist')

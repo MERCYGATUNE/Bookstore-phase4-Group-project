@@ -44,6 +44,11 @@ app.register_blueprint(favourite_bp)
 app.register_blueprint(profile_bp)
 app.register_blueprint(user_bp)
 
+@app.route('/')
+def index():
+    text='hello'
+    return text
+
 
 if __name__ == "__main__":
     app.run(debug=True, port=5555)

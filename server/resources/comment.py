@@ -47,4 +47,4 @@ class CommentListResource(Resource):
         return new_comment.serialize(), 201
 
 comment_api.add_resource(CommentResource, '/<int:id>')
-comment_api.add_resource(CommentListResource, '')
+comment_api.add_resource(CommentListResource, 'commentlist')

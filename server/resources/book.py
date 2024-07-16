@@ -44,4 +44,6 @@ class BookListResource(Resource):
         return new_book.serialize(), 201
     
 book_api.add_resource(BookResource, '/<int:id>')
-book_api.add_resource(BookListResource, '')
+book_api.add_resource(BookListResource, '/booklist')
+
+#localhost:5555/Book/booklist

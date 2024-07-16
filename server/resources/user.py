@@ -7,7 +7,7 @@ import bcrypt
 
 user_bp = Blueprint('user_bp', __name__, url_prefix='/users')
 CORS(user_bp)
-api_bp = Api(user_bp)
+user_api = Api(user_bp)
 
 class UserResource(Resource):
     @jwt_required()
@@ -70,4 +70,4 @@ class UserResource(Resource):
         return '', 204
 
 # Register the resource with the blueprint's API
-api_bp.add_resource(UserResource, '/', '/<int:id>')
+user_bp.add_resource(UserResource, '/', '/<int:id>')

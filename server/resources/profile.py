@@ -41,4 +41,4 @@ class ProfileListResource(Resource):
         return new_profile.serialize(), 201
 
 profile_api.add_resource(ProfileResource, '/<int:id>')
-profile_api.add_resource(ProfileListResource, '')
+profile_api.add_resource(ProfileListResource, 'profilelist')

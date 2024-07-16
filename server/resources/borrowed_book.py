@@ -48,4 +48,4 @@ class BorrowedBookListResource(Resource):
         return new_borrowed_book.serialize(), 201
 
 borrowed_api.add_resource(BorrowedBookResource, '/<int:id>')
-borrowed_api.add_resource(BorrowedBookListResource, '')
+borrowed_api.add_resource(BorrowedBookListResource, 'borrowedlist')
