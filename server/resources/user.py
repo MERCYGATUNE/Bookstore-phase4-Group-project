@@ -9,6 +9,7 @@ user_bp = Blueprint('Users', __name__, url_prefix='/users')
 CORS(user_bp)
 user_api = Api(user_bp)
 bcrypt=Bcrypt()
+
 # Define the parsers
 user_post_parser = reqparse.RequestParser()
 user_post_parser.add_argument('username', required=True, help='Username is required')
@@ -34,13 +35,14 @@ class UserRegisterResource(Resource):
 
         # Hash password
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        
         new_user = User(username=username, email=email, password=hashed_password)
 
         # Add new user to the database
         db.session.add(new_user)
         db.session.commit()
 
-        return jsonify({'message': 'User registered successfully'}), 201
+        return 'user created successfully', 201
 
 
 
@@ -124,4 +126,6 @@ class UserResource(Resource):
 # Register the resource with the blueprint's API
 user_api.add_resource(UserResource, '/', '/<int:id>')
 user_api.add_resource(UserRegisterResource, '/register')
-#localhost:5555/users/
+
+#localhost:5555/users/1
+#localhost:5555/users/register

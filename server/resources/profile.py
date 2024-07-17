@@ -2,7 +2,7 @@ from flask_restful import Resource,Api,reqparse
 from models import db, Profile
 from flask import Blueprint
 
-profile_bp = Blueprint('Profile',__name__,url_prefix='/profile')
+profile_bp = Blueprint('profile',__name__,url_prefix='/profile')
 profile_api = Api(profile_bp)
 
 profile_parser = reqparse.RequestParser()
@@ -20,6 +20,7 @@ class ProfileResource(Resource):
         profile = Profile.query.get_or_404(id)
         profile.bio = data['bio']
         profile.avatar = data['avatar']
+        profile.name=data['name']
         db.session.commit()
         return profile.serialize()
 
@@ -43,4 +44,6 @@ class ProfileListResource(Resource):
 
 profile_api.add_resource(ProfileResource, '/<int:id>')
 profile_api.add_resource(ProfileListResource, '/profilelist')
-#localosht:5555/Profile/profilelist
+
+#localhost:5555/profile/1
+#localosht:5555/profile/profilelist

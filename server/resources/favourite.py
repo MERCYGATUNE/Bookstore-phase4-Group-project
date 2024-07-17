@@ -3,7 +3,7 @@ from flask_restful import Resource,Api,reqparse
 from models import db, Favourite
 from flask import Blueprint
 
-favourite_bp = Blueprint('Favourite',__name__,url_prefix='/favourite')
+favourite_bp = Blueprint('favourite',__name__,url_prefix='/favourite')
 favourite_api = Api(favourite_bp)
 
 
@@ -23,6 +23,7 @@ class FavouriteResource(Resource):
         favourite = Favourite.query.get_or_404(id)
         favourite.user_id = data['user_id']
         favourite.book_id = data['book_id']
+        favourite.title=data['title']
         db.session.commit()
         return favourite.serialize()
 
@@ -39,11 +40,13 @@ class FavouriteListResource(Resource):
 
     def post(self):
         data = favourite_parser.parse_args()
-        new_favourite = Favourite(user_id=data['user_id'], book_id=data['book_id'])
+        new_favourite = Favourite(user_id=data['user_id'], book_id=data['book_id'],title=data.get('title'))
         db.session.add(new_favourite)
         db.session.commit()
         return new_favourite.serialize(), 201
 
 favourite_api.add_resource(FavouriteResource, '/<int:id>')
 favourite_api.add_resource(FavouriteListResource, '/favouritelist')
-#localhost:5555/Favourite/favouritelist
+
+#localhost:5555/favourite/1
+#localhost:5555/favourite/favouritelist

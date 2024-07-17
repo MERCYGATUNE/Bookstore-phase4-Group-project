@@ -83,7 +83,7 @@ class BorrowedBook(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     book_id = db.Column(db.Integer, db.ForeignKey('books.id'), nullable=False)
-    title = db.Column(db.String(255), nullable=False)
+    title = db.Column(db.String(255), nullable=True)
     borrowed_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     return_date = db.Column(db.DateTime)
 

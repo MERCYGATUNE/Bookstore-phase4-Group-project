@@ -3,7 +3,7 @@ from flask_restful import Resource,Api,reqparse
 from models import db, Comment
 from flask import Blueprint
 
-comment_bp = Blueprint('Comment',__name__,url_prefix='/comment')
+comment_bp = Blueprint('comment',__name__,url_prefix='/comment')
 comment_api = Api(comment_bp)
 
 
@@ -25,6 +25,7 @@ class CommentResource(Resource):
         comment.user_id = data['user_id']
         comment.book_id = data['book_id']
         comment.text = data['text']
+        comment.name=data['name']
         db.session.commit()
         return comment.serialize()
 
@@ -48,4 +49,6 @@ class CommentListResource(Resource):
 
 comment_api.add_resource(CommentResource, '/<int:id>')
 comment_api.add_resource(CommentListResource, '/commentlist')
+
+#localhost:5555/comment/1
 #localhost:5555/comment/commentlist

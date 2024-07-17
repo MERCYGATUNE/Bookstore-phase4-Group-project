@@ -3,7 +3,7 @@ from models import db, Book
 from flask import Blueprint
 from flask_cors import CORS
 
-book_bp = Blueprint('Book', __name__, url_prefix='/Book')
+book_bp = Blueprint('book', __name__, url_prefix='/book')
 book_api = Api(book_bp)
 
 book_parser = reqparse.RequestParser()
@@ -52,4 +52,6 @@ class BookListResource(Resource):
 
 book_api.add_resource(BookResource, '/<int:id>')
 book_api.add_resource(BookListResource, '/booklist')
-#localhost:5555/Book/booklist
+
+#localhost:5555/book/1
+#localhost:5555/book/booklist
