@@ -5,32 +5,33 @@ from flask_cors import CORS
 from flask_bcrypt import Bcrypt
 from models import db, User
 
-auth_bp = Blueprint('auth_bp', __name__, url_prefix='/auth')
+auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 CORS(auth_bp)
 jwt = JWTManager()
 auth_api = Api(auth_bp)
 bcrypt = Bcrypt()
 
-class RegisterResource(Resource):
-    def post(self):
-        data = request.get_json()
-        username = data.get('username')
-        email = data.get('email')
-        password = data.get('password')
+# class RegisterResource(Resource):
+#     def post(self):
+#         data = request.get_json()
+    
+#         username = data.get('username')
+#         email = data.get('email')
+#         password = data.get('password')
 
-        # Check if user already exists
-        if User.query.filter_by(email=email).first() or User.query.filter_by(username=username).first():
-            return jsonify({'message': 'User already exists'}), 409
+#         # Check if user already exists
+#         if User.query.filter_by(email=email).first() or User.query.filter_by(username=username).first():
+#             return jsonify({'message': 'User already exists'}), 409
 
-        # Hash password
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        new_user = User(username=username, email=email, password=hashed_password)
+#         # Hash password
+#         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+#         new_user = User(username=username, email=email, password=hashed_password)
 
-        # Add new user to the database
-        db.session.add(new_user)
-        db.session.commit()
+#         # Add new user to the database
+#         db.session.add(new_user)
+#         db.session.commit()
 
-        return jsonify({'message': 'User registered successfully'}), 201
+#         return jsonify({'message': 'User registered successfully'}), 201
 
 
 class LoginResource(Resource):
@@ -54,10 +55,10 @@ class ProfileResource(Resource):
     def get(self):
         user_id = get_jwt_identity()
         user = User.query.get_or_404(user_id)
-        return jsonify({'username': user.username, 'email': user.email}), 200
+        return jsonify({'id':user.id, 'username': user.username, 'email': user.email}), 200
 
 
 # Register resources with the API
-auth_api.add_resource(RegisterResource, '/register')
+# auth_api.add_resource(RegisterResource, '/register')
 auth_api.add_resource(LoginResource, '/login')
 auth_api.add_resource(ProfileResource, '/profile')

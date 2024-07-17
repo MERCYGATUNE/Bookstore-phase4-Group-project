@@ -10,7 +10,7 @@ favourite_api = Api(favourite_bp)
 favourite_parser = reqparse.RequestParser()
 favourite_parser.add_argument('user_id', type=int, required=True, help='User ID is required')
 favourite_parser.add_argument('book_id', type=int, required=True, help='Book ID is required')
-
+favourite_parser.add_argument('title', type=str, required=True, help='Book title is required')
 
 
 class FavouriteResource(Resource):
@@ -45,5 +45,5 @@ class FavouriteListResource(Resource):
         return new_favourite.serialize(), 201
 
 favourite_api.add_resource(FavouriteResource, '/<int:id>')
-favourite_api.add_resource(FavouriteListResource, 'favlist')
-#localhost:5555/Favourite/favlist
+favourite_api.add_resource(FavouriteListResource, '/favouritelist')
+#localhost:5555/Favourite/favouritelist
