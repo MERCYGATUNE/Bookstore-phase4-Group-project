@@ -23,11 +23,12 @@ user_put_parser.add_argument('password', required=False)
 
 class UserRegisterResource(Resource):
     def post(self):
-        data = request.get_json()
-    
-        username = data.get('username')
-        email = data.get('email')
-        password = data.get('password')
+        
+        args = user_post_parser.parse_args()
+
+        username = args['username']
+        email = args['email']
+        password = args['password']
 
         # Check if user already exists
         if User.query.filter_by(email=email).first() or User.query.filter_by(username=username).first():
@@ -43,13 +44,6 @@ class UserRegisterResource(Resource):
         db.session.commit()
 
         return 'user created successfully', 201
-
-
-
-
-
-
-
 
 
 
@@ -96,17 +90,22 @@ class UserResource(Resource):
         user_id = get_jwt_identity()
         
         if user.id != user_id:
-            return jsonify({'message': 'Unauthorized access'}), 403
+            return 'Unauthorized access', 403
 
-        data = request.get_json()
+        
+        args = user_put_parser.parse_args()
         
         # Update user details
-        if 'username' in data:
-            user.username = data['username']
-        if 'email' in data:
-            user.email = data['email']
-        if 'password' in data:
-            user.password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        if args['username']:
+            user.username = args['username']
+        if args['email']:
+            user.email = args['email']
+        if args['password']:
+            user.password = bcrypt.generate_password_hash(args['password']).decode('utf-8')
+
+
+
+
 
         db.session.commit()
         return jsonify(user.serialize()), 200
@@ -128,4 +127,4 @@ user_api.add_resource(UserResource, '/', '/<int:id>')
 user_api.add_resource(UserRegisterResource, '/register')
 
 #localhost:5555/users/1
-#localhost:5555/users/register
+#localhost:5555/users/register....use post

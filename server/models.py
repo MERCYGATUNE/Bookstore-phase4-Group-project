@@ -84,8 +84,8 @@ class BorrowedBook(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     book_id = db.Column(db.Integer, db.ForeignKey('books.id'), nullable=False)
     title = db.Column(db.String(255), nullable=True)
-    borrowed_date = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
-    return_date = db.Column(db.DateTime)
+    borrowed_date = db.Column(db.DateTime, nullable=False)
+    return_date = db.Column(db.DateTime ,nullable=False)
 
     user = db.relationship('User', back_populates='borrowed_books')  # Relationship
     book = db.relationship('Book', back_populates='borrowed_books')  # Relationship

@@ -6,7 +6,7 @@ from flask_migrate import Migrate
 from flask_cors import CORS 
 from resources.auth import auth_bp ,jwt
 from resources.book import book_bp
-from resources.borrowed_book import borrowed_bp
+from resources.borrowed_book import borrowed_bp,borrowed_api
 from resources.comment import comment_bp
 from resources.favourite import favourite_bp
 from resources.profile import profile_bp
@@ -42,6 +42,10 @@ app.register_blueprint(comment_bp)
 app.register_blueprint(favourite_bp)
 app.register_blueprint(profile_bp)
 app.register_blueprint(user_bp)
+
+
+# Initialize API and add resources
+borrowed_api.init_app(app)
 
 @app.route('/')
 def index():
