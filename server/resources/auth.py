@@ -14,6 +14,7 @@ bcrypt = Bcrypt()
 class RegisterResource(Resource):
     def post(self):
         data = request.get_json()
+    
         username = data.get('username')
         email = data.get('email')
         password = data.get('password')
@@ -54,7 +55,7 @@ class ProfileResource(Resource):
     def get(self):
         user_id = get_jwt_identity()
         user = User.query.get_or_404(user_id)
-        return jsonify({'username': user.username, 'email': user.email}), 200
+        return jsonify({'id':user.id, 'username': user.username, 'email': user.email}), 200
 
 
 # Register resources with the API

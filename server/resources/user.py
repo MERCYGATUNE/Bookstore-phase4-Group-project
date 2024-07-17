@@ -9,7 +9,6 @@ user_bp = Blueprint('Users', __name__, url_prefix='/users')
 CORS(user_bp)
 user_api = Api(user_bp)
 
-
 # Define the parsers
 user_post_parser = reqparse.RequestParser()
 user_post_parser.add_argument('username', required=True, help='Username is required')
@@ -20,11 +19,6 @@ user_put_parser = reqparse.RequestParser()
 user_put_parser.add_argument('username', required=False)
 user_put_parser.add_argument('email', required=False)
 user_put_parser.add_argument('password', required=False)
-
-
-
-
-
 
 class UserResource(Resource):
     @jwt_required()
@@ -38,13 +32,20 @@ class UserResource(Resource):
 
     def post(self):
         data = request.get_json()
+        
+        # Validate input data
+        if not data:
+            return jsonify({'message': 'No input data provided'}), 400
+            
         username = data.get('username')
         email = data.get('email')
         password = data.get('password')
 
+        # Check for existing user
         if User.query.filter_by(email=email).first() or User.query.filter_by(username=username).first():
             return jsonify({'message': 'User already exists'}), 409
 
+        # Hash password and create user
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
         new_user = User(username=username, email=email, password=hashed_password.decode('utf-8'))
 
@@ -57,28 +58,28 @@ class UserResource(Resource):
     def put(self, id):
         user = User.query.get_or_404(id)
         user_id = get_jwt_identity()
+        
         if user.id != user_id:
             return jsonify({'message': 'Unauthorized access'}), 403
 
         data = request.get_json()
-        username = data.get('username')
-        email = data.get('email')
-        password = data.get('password')
-
-        if username:
-            user.username = username
-        if email:
-            user.email = email
-        if password:
-            user.password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+        
+        # Update user details
+        if 'username' in data:
+            user.username = data['username']
+        if 'email' in data:
+            user.email = data['email']
+        if 'password' in data:
+            user.password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
 
         db.session.commit()
-        return jsonify(user.serialize())
+        return jsonify(user.serialize()), 200
 
     @jwt_required()
     def delete(self, id):
         user = User.query.get_or_404(id)
         user_id = get_jwt_identity()
+        
         if user.id != user_id:
             return jsonify({'message': 'Unauthorized access'}), 403
 
@@ -88,4 +89,3 @@ class UserResource(Resource):
 
 # Register the resource with the blueprint's API
 user_api.add_resource(UserResource, '/', '/<int:id>')
-#localhost:5555/User/id like 1

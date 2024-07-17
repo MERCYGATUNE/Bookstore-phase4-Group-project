@@ -9,6 +9,7 @@ profile_parser = reqparse.RequestParser()
 profile_parser.add_argument('user_id', type=int, required=True, help='User ID is required')
 profile_parser.add_argument('bio', type=str, required=False)
 profile_parser.add_argument('avatar', type=str, required=False)
+profile_parser.add_argument('name', type=str, required=False) 
 class ProfileResource(Resource):
     def get(self, id):
         profile = Profile.query.get_or_404(id)

@@ -2,7 +2,7 @@
 from flask_restful import Resource,Api,reqparse
 from models import db, BorrowedBook
 from flask import Blueprint
-
+from datetime import datetime
 borrowed_bp = Blueprint('Borrowed',__name__,url_prefix='/borrowed')
 borrowed_api = Api(borrowed_bp)
 
@@ -13,8 +13,9 @@ borrowed_api = Api(borrowed_bp)
 borrowed_parser = reqparse.RequestParser()
 borrowed_parser.add_argument('user_id', type=int, required=True, help='User ID is required')
 borrowed_parser.add_argument('book_id', type=int, required=True, help='Book ID is required')
-
-
+borrowed_parser.add_argument('title', type=str, required=True, help='Book title is required')
+borrowed_parser.add_argument('return_date', type=str, required=False, help='Return date in ISO format (optional)')
+borrowed_parser.add_argument('borrowed_date', type=str, required=False, help='Borrowed date in ISO format (optional)', default=datetime.utcnow().isoformat())
 class BorrowedBookResource(Resource):
     def get(self, id):
         borrowed = BorrowedBook.query.get_or_404(id)
