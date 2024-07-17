@@ -11,27 +11,27 @@ jwt = JWTManager()
 auth_api = Api(auth_bp)
 bcrypt = Bcrypt()
 
-class RegisterResource(Resource):
-    def post(self):
-        data = request.get_json()
+# class RegisterResource(Resource):
+#     def post(self):
+#         data = request.get_json()
     
-        username = data.get('username')
-        email = data.get('email')
-        password = data.get('password')
+#         username = data.get('username')
+#         email = data.get('email')
+#         password = data.get('password')
 
-        # Check if user already exists
-        if User.query.filter_by(email=email).first() or User.query.filter_by(username=username).first():
-            return jsonify({'message': 'User already exists'}), 409
+#         # Check if user already exists
+#         if User.query.filter_by(email=email).first() or User.query.filter_by(username=username).first():
+#             return jsonify({'message': 'User already exists'}), 409
 
-        # Hash password
-        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
-        new_user = User(username=username, email=email, password=hashed_password)
+#         # Hash password
+#         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+#         new_user = User(username=username, email=email, password=hashed_password)
 
-        # Add new user to the database
-        db.session.add(new_user)
-        db.session.commit()
+#         # Add new user to the database
+#         db.session.add(new_user)
+#         db.session.commit()
 
-        return jsonify({'message': 'User registered successfully'}), 201
+#         return jsonify({'message': 'User registered successfully'}), 201
 
 
 class LoginResource(Resource):
@@ -59,6 +59,6 @@ class ProfileResource(Resource):
 
 
 # Register resources with the API
-auth_api.add_resource(RegisterResource, '/register')
+# auth_api.add_resource(RegisterResource, '/register')
 auth_api.add_resource(LoginResource, '/login')
 auth_api.add_resource(ProfileResource, '/profile')

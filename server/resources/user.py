@@ -3,12 +3,12 @@ from flask_restful import Resource, Api, reqparse
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from flask_cors import CORS
 from models import db, User
-import bcrypt
+from flask_bcrypt import Bcrypt
 
 user_bp = Blueprint('Users', __name__, url_prefix='/users')
 CORS(user_bp)
 user_api = Api(user_bp)
-
+bcrypt=Bcrypt()
 # Define the parsers
 user_post_parser = reqparse.RequestParser()
 user_post_parser.add_argument('username', required=True, help='Username is required')
@@ -19,6 +19,40 @@ user_put_parser = reqparse.RequestParser()
 user_put_parser.add_argument('username', required=False)
 user_put_parser.add_argument('email', required=False)
 user_put_parser.add_argument('password', required=False)
+
+class UserRegisterResource(Resource):
+    def post(self):
+        data = request.get_json()
+    
+        username = data.get('username')
+        email = data.get('email')
+        password = data.get('password')
+
+        # Check if user already exists
+        if User.query.filter_by(email=email).first() or User.query.filter_by(username=username).first():
+            return jsonify({'message': 'User already exists'}), 409
+
+        # Hash password
+        hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+        new_user = User(username=username, email=email, password=hashed_password)
+
+        # Add new user to the database
+        db.session.add(new_user)
+        db.session.commit()
+
+        return jsonify({'message': 'User registered successfully'}), 201
+
+
+
+
+
+
+
+
+
+
+
+
 
 class UserResource(Resource):
     @jwt_required()
@@ -85,7 +119,9 @@ class UserResource(Resource):
 
         db.session.delete(user)
         db.session.commit()
-        return '', 204
+        return jsonify({'message': 'User deleted successfully'}), 204
 
 # Register the resource with the blueprint's API
 user_api.add_resource(UserResource, '/', '/<int:id>')
+user_api.add_resource(UserRegisterResource, '/register')
+#localhost:5555/users/

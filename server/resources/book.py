@@ -1,6 +1,7 @@
 from flask_restful import Resource, Api, reqparse
 from models import db, Book
 from flask import Blueprint
+from flask_cors import CORS
 
 book_bp = Blueprint('Book', __name__, url_prefix='/Book')
 book_api = Api(book_bp)
@@ -51,3 +52,4 @@ class BookListResource(Resource):
 
 book_api.add_resource(BookResource, '/<int:id>')
 book_api.add_resource(BookListResource, '/booklist')
+#localhost:5555/Book/booklist
