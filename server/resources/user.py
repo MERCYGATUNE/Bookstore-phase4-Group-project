@@ -32,7 +32,7 @@ class UserRegisterResource(Resource):
 
         # Check if user already exists
         if User.query.filter_by(email=email).first() or User.query.filter_by(username=username).first():
-            return jsonify({'message': 'User already exists'}), 409
+            return  'User already exists', 409
 
         # Hash password
         hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
