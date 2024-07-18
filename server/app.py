@@ -11,7 +11,7 @@ from resources.comment import comment_bp
 from resources.favourite import favourite_bp
 from resources.profile import profile_bp
 from resources.user import user_bp
-
+from resources.bookdetail import bookdetail_bp
 from models import db
 
 
@@ -42,7 +42,7 @@ app.register_blueprint(comment_bp)
 app.register_blueprint(favourite_bp)
 app.register_blueprint(profile_bp)
 app.register_blueprint(user_bp)
-
+app.register_blueprint(bookdetail_bp)
 
 # Initialize API and add resources
 borrowed_api.init_app(app)

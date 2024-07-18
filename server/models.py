@@ -66,7 +66,7 @@ class Book(db.Model):
     comments = db.relationship('Comment', back_populates='book', lazy=True)
     favourites = db.relationship('Favourite', back_populates='book', lazy=True)
     borrowed_books = db.relationship('BorrowedBook', back_populates='book', lazy=True)
-
+    bookdetail = db.relationship('BookDetail', back_populates='book', uselist=False)
     def serialize(self):
         return {
             'id': self.id,
@@ -75,6 +75,34 @@ class Book(db.Model):
             'description':self.description,
             'isbn':self.isbn,
         }
+
+
+class BookDetail(db.Model):
+    __tablename__ = 'book_details'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    book_id = db.Column(db.Integer, db.ForeignKey('books.id'), nullable=False)
+    author = db.Column(db.String(255), nullable=False)
+    title = db.Column(db.String(255), nullable=False)
+    description = db.Column(db.String(255), nullable=True)
+    genre = db.Column(db.String(100), nullable=True)
+    publication_year = db.Column(db.Integer, nullable=True)
+    
+    book = db.relationship('Book', back_populates='bookdetail', uselist=False)  # Single book detail
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'book_id': self.book_id,
+            'author': self.author,
+            'title': self.title,
+            'description': self.description,
+            'genre': self.genre,
+            'publication_year': self.publication_year,
+        }
+
+
+
 
 
 class BorrowedBook(db.Model):
