@@ -61,7 +61,7 @@ class Book(db.Model):
     author = db.Column(db.String(255), nullable=False)
     description = db.Column(db.String(255), nullable=True)  
     isbn = db.Column(db.String(20), nullable=True) 
-    image = db.Column(db.String(255), nullable=True)
+    image = db.Column(db.String(255) ,nullable=False)
     #relationships
     comments = db.relationship('Comment', back_populates='book', lazy=True)
     favourites = db.relationship('Favourite', back_populates='book', lazy=True)
@@ -74,7 +74,7 @@ class Book(db.Model):
             'author': self.author,
             'description':self.description,
             'isbn':self.isbn,
-            'image': self.image,
+            'image': self.image
         }
 
 
