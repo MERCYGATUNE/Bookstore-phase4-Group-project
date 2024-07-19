@@ -11,6 +11,7 @@ book_parser.add_argument('title', type=str, required=True, help='Title is requir
 book_parser.add_argument('author', type=str, required=True, help='Author is required')
 book_parser.add_argument('description', type=str, required=False, help='Description of the book (optional)')
 book_parser.add_argument('isbn', type=str, required=False, help='ISBN of the book (optional)')
+book_parser.add_argument('image', type=str, required=False, help='Image URL of the book (optional)')
 
 class BookResource(Resource):
     def get(self, id):
@@ -23,7 +24,9 @@ class BookResource(Resource):
         book.title = data['title']
         book.author = data['author']
         book.description = data.get('description')  # Update optional field
-        book.isbn = data.get('isbn')  # Update optional field
+        book.isbn = data.get('isbn') 
+        book.image = data.get('image')
+        # Update optional field
         db.session.commit()
         return book.serialize()
 
@@ -31,7 +34,7 @@ class BookResource(Resource):
         book = Book.query.get_or_404(id)
         db.session.delete(book)
         db.session.commit()
-        return {'message': 'Book deleted successfully'}
+        return 'message: Book deleted successfully'
 
 class BookListResource(Resource):
     def get(self):
@@ -44,7 +47,9 @@ class BookListResource(Resource):
             title=data['title'],
             author=data['author'],
             description=data.get('description'),  # Include optional field
-            isbn=data.get('isbn')  # Include optional field
+            isbn=data.get('isbn') ,
+            image=data.get('image') 
+            # Include optional field
         )
         db.session.add(new_book)
         db.session.commit()

@@ -1,10 +1,10 @@
 
 import os
-from flask import Flask
+from flask import Flask,session
 
 from flask_migrate import Migrate   
 from flask_cors import CORS 
-from resources.auth import auth_bp ,jwt
+from resources.auth import auth_bp 
 from resources.book import book_bp
 from resources.borrowed_book import borrowed_bp,borrowed_api
 from resources.comment import comment_bp
@@ -19,16 +19,17 @@ from models import db
 app = Flask(__name__) 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///library.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['JWT_SECRET_KEY'] ='12345'
+# app.config['SECRET_KEY'] = 'my_secret_key'
+app.config['SECRET_KEY'] =os.environ.get('SECRET_KEY','24238f7adc323ed79516259ca523ea68')
 migrate = Migrate(app,db)
 
     
 db.init_app(app)
    
-jwt.init_app(app)
+# jwt.init_app(app)
     
     # Enable CORS
-CORS(app)
+CORS(app) 
 
 
 

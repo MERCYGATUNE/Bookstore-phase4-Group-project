@@ -1,16 +1,13 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request,  session
 from flask_restful import Api, Resource
 from flask_cors import CORS
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import JWTManager, create_access_token, jwt_required, get_jwt_identity
 from models import db, User
 
 auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 CORS(auth_bp)
 auth_api = Api(auth_bp)
 bcrypt = Bcrypt()
-
-jwt = JWTManager()  # Initialize JWTManager
 
 class LoginResource(Resource):
     def post(self):
@@ -20,23 +17,34 @@ class LoginResource(Resource):
 
         user = User.query.filter_by(email=email).first()
         if not user or not bcrypt.check_password_hash(user.password, password):
-            return jsonify({"msg": "Invalid email or password"}), 401
+            return "msg: Invalid email or password", 401
 
-        access_token = create_access_token(identity=user.id)
-        return jsonify({"access_token": access_token, "msg": "Login successful"}), 200
+        # Set session data
+        session['user_id'] = user.id
+        session['logged_in'] = True
+
+        return "msg: Login successful", 200
 
 class ProfileResource(Resource):
-    @jwt_required()
     def get(self):
-        user_id = get_jwt_identity()
+        if not session.get('logged_in'):
+            return "msg: User not logged in", 401
+        
+        user_id = session.get('user_id')
         user = User.query.get_or_404(user_id)
-        return jsonify(user.serialize()), 200
+        return (user.serialize()), 200
 
 class LogoutResource(Resource):
-    @jwt_required()
     def post(self):
-        return jsonify({"msg": "Logout successful"}), 200
+        if session.get('logged_in'):
+            session.clear()
+            return "msg :Logout successful", 200
+        else:
+            return "msg :User not logged in", 401
 
 auth_api.add_resource(LoginResource, '/login')
 auth_api.add_resource(ProfileResource, '/profile')
 auth_api.add_resource(LogoutResource, '/logout')
+#localhost:5555/auth/login
+#localhost:5555/auth/profile
+#localhost:5555/auth/logout
